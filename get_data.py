@@ -19,7 +19,7 @@ def get_samples_references():
 
     language_url = constants.ROOT_URL + constants.BROWSE_URL.format(current_language)
     logger.debug(language_url)
-    soup = BeautifulSoup(urlopen(language_url), 'lxml')
+    soup = BeautifulSoup(urlopen(language_url), 'html.parser')
     references = soup.find_all('p')
     samples_references = []
     for reference in references:
@@ -64,7 +64,7 @@ def retrieve_audio(sample_reference):
 
 def retrieve_sample_metadata(sample_reference):
     sample_url = constants.ROOT_URL + sample_reference.attrs['href']
-    soup = BeautifulSoup(urlopen(sample_url), 'lxml')
+    soup = BeautifulSoup(urlopen(sample_url), 'html.parser')
     sample_bio = soup.find('ul', {'class': 'bio'})
     sample = Sample(file_location=file_location)
     metadata_rows = sample_bio.find_all('li')

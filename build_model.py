@@ -28,6 +28,8 @@ from sklearn.preprocessing import LabelEncoder
 
 import constants
 
+import config
+
 # To use Comet ML visualization and logging you have to follow the instructions from README.md
 # on how to set COMET_API_KEY, COMET_WORKSPACE, COMET_PROJECT_NAME environment variables
 # Alternatively, you can set these variables manually in the code here by uncommenting the lines below
@@ -35,18 +37,18 @@ import constants
 # os.environ["COMET_WORKSPACE"] = 'YOUR_WORKSPACE'
 # os.environ["COMET_PROJECT_NAME"] = 'YOUR_PROJECT_NAME'
 
-USE_COMET_ML = os.environ.get("COMET_API_KEY") and os.environ.get("COMET_WORKSPACE") \
-               and os.environ.get("COMET_PROJECT_NAME")
+USE_COMET_ML = config.COMET_API_KEY and config.COMET_WORKSPACE \
+            and config.COMET_PROJECT_NAME
 
 if USE_COMET_ML:
     experiment = Experiment(
-        api_key=os.environ["COMET_API_KEY"],
-        workspace=os.environ["COMET_WORKSPACE"],
-        project_name=os.environ["COMET_PROJECT_NAME"]
+        api_key=config.COMET_API_KEY,
+        workspace=config.COMET_WORKSPACE,
+        project_name=config.COMET_PROJECT_NAME
     )
 
 """Parameters to adjust"""
-LANG_SET = 'en_ge_sw_du_ru_po_fr_it_sp_64mel_'  # what languages to use / fr_it_sp
+LANG_SET = 'en_sp_64mel_'  # what languages to use / fr_it_sp
 FEATURES = 'fbe'  # mfcc / f0 / cen / rol / chroma / rms / zcr / fbe [Feature types] mfcc_f0_cen_rol_chroma_rms_zcr
 MAX_PER_LANG = 80  # maximum number of audios of a language
 
@@ -358,6 +360,8 @@ def preprocess_new_data(x, y):
     logger.debug('Transforming y to categorical...')
     le = LabelEncoder()
     y_categorical = to_categorical(le.fit_transform(y))
+
+    print("this is africa" + y_categorical)
 
     classes = get_classes_map(y_categorical, y)
 
@@ -721,6 +725,7 @@ def main():
     if not Path.exists(Path(features_npy)) or not Path.exists(Path(info_data_npy)):
         df = pd.read_csv(constants.AUDIOS_INFO_FILE_NAME)
         df = filter_df(df)
+        print("df is " + df)
         audio_paths = df.path if not UNSILENCE else df.path_unsilenced
         corresponding_languages = df.language
 
@@ -729,6 +734,7 @@ def main():
             return -1
         x_train, x_test, y_train, y_test, train_count, test_count, languages_mapping = preprocess
     else:
+        print("here")
         x_train, x_test, y_train, y_test, train_count, test_count, languages_mapping = open_preprocessed_data()
 
     logger.debug('Selecting features...')
