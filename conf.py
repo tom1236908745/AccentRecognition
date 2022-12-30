@@ -18,7 +18,6 @@ from keras.layers.core import Dense, Dropout, Flatten
 from keras.models import load_model, Sequential
 from keras.preprocessing.image import ImageDataGenerator
 from keras.utils import to_categorical
-from loguru import logger
 from sklearn.decomposition import PCA
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import f_classif
@@ -109,7 +108,7 @@ def extract_features(audio_file):
     (columns == FRAME_SIZE, rows == number of features)
     """
     if not Path(audio_file).exists():
-        logger.warning(f"Audio file {audio_file} is not found. Check the dataset")
+       
         return
     y, sr = librosa.load(audio_file, sr=None)
     y = librosa.core.resample(y=y, orig_sr=sr, target_sr=SAMPLE_RATE, scale=True)
@@ -140,9 +139,9 @@ def extract_features(audio_file):
         mel_s = derive_mel_s(audio_file, y)
         features.append(mel_s)
 
-    logger.debug('Concatenating extracted features...')
+   
     features = np.vstack(features)
-    logger.debug(f'Shape of concatenated features: {features.shape}')
+    
     return features
 
 
@@ -184,7 +183,7 @@ def derive_mfcc(audio_file, y):
     :param y: (numpy.ndarray) Loaded and resampled at SAMPLE_RATE audio file
     :return: (numpy.ndarray) Vectors of normalized MFCC
     """
-    logger.debug(f'Extracting MFCC for {audio_file}...')
+    
     '''if 'energy' in LANG_SET:
         mfcc = python_speech_features.mfcc(signal=y, samplerate=SAMPLE_RATE, winlen=WIN_LENGTH / SAMPLE_RATE,
                                            winstep=HOP_LENGTH / SAMPLE_RATE, appendEnergy=True, numcep=14,
@@ -212,7 +211,7 @@ def derive_mel_s(audio_file, y):
     :param y: (numpy.ndarray) Loaded and resampled at SAMPLE_RATE audio file
     :return: (numpy.ndarray) Vectors of normalized mel-spectrograms
     """
-    logger.debug(f'Extracting Mel-spectrogram for {audio_file}...')
+   
     mel_s = librosa.feature.melspectrogram(y=y, sr=SAMPLE_RATE, n_mels=N_MELS, hop_length=HOP_LENGTH,
                                            win_length=WIN_LENGTH, power=1.0)
     if MEL_S_LOG:
@@ -230,7 +229,7 @@ def derive_f0(audio_file, y):
     :param y: (numpy.ndarray) Loaded and resampled at SAMPLE_RATE audio file
     :return: (numpy.ndarray) Vector of normalized fundamental frequencies
     """
-    logger.debug(f'Extracting fundamental frequency for {audio_file}...')
+   
     f0 = librosa.yin(y, librosa.note_to_hz('C2'), librosa.note_to_hz('C7'), sr=SAMPLE_RATE, hop_length=HOP_LENGTH,
                      win_length=WIN_LENGTH)
     f0_normalized = normalize_scalar_feature(f0)
@@ -246,7 +245,7 @@ def derive_spectral_centroid(audio_file, y):
     :param y: (numpy.ndarray) Loaded and resampled at SAMPLE_RATE audio file
     :return: (numpy.ndarray) Vector of normalized spectral centroids
     """
-    logger.debug(f'Extracting spectral centroid for {audio_file}...')
+    
     spectral_centroid = librosa.feature.spectral_centroid(y, sr=SAMPLE_RATE, hop_length=HOP_LENGTH,
                                                           win_length=WIN_LENGTH)
     spectral_centroid_normalized = normalize_scalar_feature(spectral_centroid)
@@ -262,7 +261,7 @@ def derive_spectral_rolloff(audio_file, y):
     :param y: (numpy.ndarray) Loaded and resampled at SAMPLE_RATE audio file
     :return: (numpy.ndarray) Vector of normalized spectral roll-off values
     """
-    logger.debug(f'Extracting spectral rolloff for {audio_file}...')
+    
     rolloff = librosa.feature.spectral_rolloff(y, sr=SAMPLE_RATE, hop_length=HOP_LENGTH, win_length=WIN_LENGTH)
     rolloff_normalized = normalize_scalar_feature(rolloff)
     return rolloff_normalized
@@ -277,7 +276,7 @@ def derive_chromagram(audio_file, y):
     :param y: (numpy.ndarray) Loaded and resampled at SAMPLE_RATE audio file
     :return: (numpy.ndarray) Vectors of normalized chroma bins of an audio file
     """
-    logger.debug(f'Extracting chromagram for {audio_file}...')
+    
     chromagram = librosa.feature.chroma_stft(y=y, sr=SAMPLE_RATE, hop_length=HOP_LENGTH, win_length=WIN_LENGTH)
     chromagram_normalized = normalize_feature_vectors(chromagram)
     return chromagram_normalized
@@ -292,7 +291,7 @@ def derive_rms(audio_file, s):
     :param s: (numpy.ndarray) magnitudes (S) of a Spectrogram
     :return: (numpy.ndarray) Vector of normalized RMS values
     """
-    logger.debug(f'Extracting chromagram for {audio_file}...')
+    
     rms = librosa.feature.rms(S=s)[0]
     rms_normalized = normalize_scalar_feature(rms)
     return rms_normalized
@@ -307,7 +306,7 @@ def derive_zcr(audio_file, y):
     :param y: (numpy.ndarray) Loaded and resampled at SAMPLE_RATE audio file
     :return: (numpy.ndarray) Vector of normalized ZCR
     """
-    logger.debug(f'Extracting ZCR for {audio_file}...')
+    
     zcr = librosa.feature.zero_crossing_rate(y, hop_length=HOP_LENGTH, frame_length=WIN_LENGTH * 2)
     zcr_normalized = normalize_scalar_feature(zcr)
     return zcr_normalized
@@ -339,10 +338,10 @@ def create_segments_after_selection(data_arrays):
     segments_arrays = ()
     for data_array in data_arrays:
         segments = []
-        logger.debug(f'\nShape of data before segmenting: {data_array.shape}')
+     
         for element in data_array:
             segments.append(element.reshape(NUM_OF_FEATURES, FRAME_SIZE))
-        logger.debug(f'Shape of segmented data: {np.array(segments).shape}\n')
+       
         segments_arrays = segments_arrays + (np.array(segments),)
     return segments_arrays
 
@@ -355,9 +354,7 @@ def preprocess_new_data(x, y):
     :param y: corresponding languages
     :return: (tuple) train and test sets, information about classes distribution
     """
-    logger.info(f'Languages distribution by audios: {Counter(y)}')
 
-    logger.debug('Transforming y to categorical...')
     le = LabelEncoder()
     y_categorical = to_categorical(le.fit_transform(y))
     print("y_categorical")
@@ -367,14 +364,13 @@ def preprocess_new_data(x, y):
 
     classes = get_classes_map(y_categorical, y)
 
-    logger.debug('Loading WAV files...')
     pool = multiprocessing.Pool(processes=multiprocessing.cpu_count())
     x = pool.map(extract_features, x)
     if any(feature is None for feature in x):
-        logger.error("Some audio files are missing. See the log warnings above and fix the dataset before proceeding")
+        
         return None
 
-    logger.debug('Making segments of feature vectors...')
+
     x_segmented, y_segmented = split_into_matrices(x, y_categorical)
     print("x_segmented ")
     print(x_segmented)
@@ -387,11 +383,7 @@ def preprocess_new_data(x, y):
     train_count = Counter([np.where(y == 1)[0][0] for y in y_train])
     test_count = Counter([np.where(y == 1)[0][0] for y in y_test])
 
-    logger.debug(f'Train count: {train_count}')
-    logger.debug(f'Test count: {test_count}')
-
-    logger.debug(f'Length of training set: {len(x_train)}')
-    logger.debug(f'Length of testing set: {len(x_test)}')
+    
 
     assert (len(x_train) == len(y_train)) and (len(x_test) == len(y_test))
 
@@ -480,7 +472,7 @@ class TerminateOnBaseline(Callback):
         accuracy = logs.get(self.monitor)
         if accuracy is not None:
             if accuracy >= self.baseline:
-                logger.debug(f'Epoch {epoch}: Reached baseline, terminating training...')
+               
                 self.model.stop_training = True
 
 
@@ -528,63 +520,47 @@ def train_model(x_train, y_train, x_validation, y_validation):
     :param y_validation: (numpy.ndarray) list of binary labels testing the network
     :return: Trained model
     """
-    if CHECK_DATASETS:
-        logger.debug('Checking whether train and test sets are different...')
-        logger.debug(f'X train compared with itself. {compare_sets(x_train, x_train)}')
-        logger.debug(f'X validation compared with itself. {compare_sets(x_validation, x_validation)}')
-        logger.debug(f'X train compared with x validation. {compare_sets(x_train, x_validation)}')
+   
 
-    logger.debug('Getting data dimensions...')
-
+    
     rows = x_train[0].shape[0]
     cols = x_train[0].shape[1]
     assert x_train[0].shape == x_validation[0].shape
-    logger.debug('Train and validation matrices are of same dimension...')
 
     train_samples_num = x_train.shape[0]
     val_samples_num = x_validation.shape[0]
     assert train_samples_num == y_train.shape[0] and val_samples_num == y_validation.shape[0]
-    logger.debug('X and Y have the same number of samples...')
+
 
     num_classes = y_train[0].shape[0]
 
-    logger.debug(f'Input matrix rows: {rows}')
-    logger.debug(f'Input matrix columns: {cols}')
-    logger.debug(f'Num. of classes: {num_classes}')
-
-    logger.debug('Reshaping input data...')
 
     input_shape = (rows, cols, 1)
     x_train = x_train.reshape(x_train.shape[0], rows, cols, 1)
     x_validation = x_validation.reshape(x_validation.shape[0], rows, cols, 1)
-    logger.debug(f'Input data shape: {input_shape}')
-
+   
     model = build_model(input_shape, num_classes)
 
     model.compile(loss='categorical_crossentropy',
                   optimizer='adam',
                   metrics=['accuracy'])
 
-    logger.debug(f'Creating a condition for stopping training if accuracy does not change '
-                 f'at least {MIN_DELTA * 100}% over {PATIENCE} epochs')
-
+    
     es = EarlyStopping(monitor='accuracy', min_delta=MIN_DELTA, patience=PATIENCE, verbose=1, mode='auto',
                        restore_best_weights=True)
     # es_baseline = TerminateOnBaseline(monitor='accuracy', baseline=BASELINE)
     time_history = TimeHistory()
 
-    logger.debug('Adding image generator for data augmentation...')
+
     data_generator = ImageDataGenerator(width_shift_range=0.2)
 
-    logger.debug('Training model...')
+
     history = model.fit(data_generator.flow(x_train, y_train, batch_size=BATCH_SIZE),
                         steps_per_epoch=x_train.shape[0] / BATCH_SIZE, epochs=EPOCHS,
                         callbacks=[es, time_history], validation_data=(x_validation, y_validation))
     epoch_av_time = round(np.mean(time_history.times), 2)
 
-    logger.debug('Model trained.')
-    logger.info(f'Average epoch time: {epoch_av_time}')
-    logger.debug('Plotting accuracy and loss...')
+
 
     plot_history(history)
 
@@ -665,32 +641,23 @@ def select_features(x_train, y_train, x_test):
     :param x_test: (numpy.ndarray) list of features matrices used for testing
     :return:
     """
-    logger.debug('Performing feature selection...')
-    logger.debug('[BEFORE SELECTION]')  # matrices won't pass for selection. Choose distinct vectors.
-    logger.debug(f'X train shape: {x_train.shape}')
-    logger.debug(f'y train shape: {y_train.shape}')
-    logger.debug(f'X test shape: {x_test.shape}')
+
 
     y_train = one_hot_to_int(y_train)
 
     x_train = np.array([x_train.flatten() for x_train in x_train])
     x_test = np.array([x_test.flatten() for x_test in x_test])
 
-    logger.debug('\n[AFTER SELECTION]')
-    logger.debug(f'X train shape: {x_train.shape}')
-    logger.debug(f'y train shape: {y_train.shape}')
-    logger.debug(f'X test shape: {x_test.shape}')
 
     if selection_method == 'UNIVARIATE':
         selector = SelectKBest(score_func=SCORE_FUNC,
                                k=NUM_OF_FEATURES * FRAME_SIZE)  # k = number of features to choose
         selector.fit(x_train, y_train)
-        logger.info(f'Feature selection score: [{selector.scores_}]')
+
     elif selection_method == 'PCE':
         selector = PCA(n_components=NUM_OF_FEATURES * FRAME_SIZE)
         selector.fit(x_train)
-        logger.info(f'Explained Variance: {selector.explained_variance_ratio_}')
-        logger.info(selector.components_)
+
 
     x_train_selected = selector.transform(x_train)
     x_test_selected = selector.transform(x_test)
@@ -708,26 +675,20 @@ def main():
     global LANG_SET
     global features_npy, info_data_npy
 
-    logger.debug('Setting up file paths according to the set up...')
-
     if UNSILENCE:
         LANG_SET = LANG_SET + '_unsilenced'
     training_languages_str = f'{LANG_SET}_{FRAME_SIZE}'
 
-    logger.debug('Creating saving directories if they do not yet exist..')
 
     Path(f'./features/{FEATURES}').mkdir(parents=True, exist_ok=True)
     Path(f'./testing_data/{FEATURES}').mkdir(parents=True, exist_ok=True)
     Path(f'./models/{FEATURES}').mkdir(parents=True, exist_ok=True)
 
-    logger.debug('Defining saving file names...')
 
     features_npy = f'./features/{FEATURES}/{training_languages_str}.npy'
     info_data_npy = f'./testing_data/{FEATURES}/{training_languages_str}.npy'
     model_file = f'./models/{FEATURES}/{training_languages_str}.h5'
 
-    logger.debug('Getting input data from file in case it has already been retrieved.'
-                 ' Otherwise preprocessing audios to get this data...')
 
     if not Path.exists(Path(features_npy)) or not Path.exists(Path(info_data_npy)):
         df = pd.read_csv(constants.AUDIOS_INFO_FILE_NAME)
@@ -741,73 +702,27 @@ def main():
     else:
         x_train, x_test, y_train, y_test, train_count, test_count, languages_mapping = open_preprocessed_data()
 
-    logger.debug('Selecting features...')
+
 
     if SELECT_FEATURES:
         x_train, x_test = select_features(x_train, y_train, x_test)
         x_train, x_test = create_segments_after_selection((x_train, x_test))
 
     if not Path.exists(Path(model_file)):
-        logger.debug('Training model...')
+       
         trained_model = train_model(np.array(x_train), np.array(y_train), np.array(x_test), np.array(y_test))
         trained_model.summary()
         trained_model.save(model_file)
     else:
-        logger.debug('Found trained model. Loading...')
+
         trained_model = load_model(model_file)
 
     languages_classes_mapping = list(languages_mapping.values())
 
-    logger.debug('Running model on testing set...')
-    logger.debug(f'X train shape: {x_train.shape}')
-    logger.debug(f'X test shape: {x_test.shape}')
-    logger.debug(f'Y train shape: {y_train.shape}')
-    logger.debug(f'Y test shape: {y_test.shape}')
 
     y_predicted = np.argmax(trained_model.predict(x_test.reshape(x_test.shape + (1,)), verbose=1), axis=1)
     y_test_bool = np.argmax(y_test, axis=1)
 
-    logger.info(f'Metrics:\n{classification_report(y_test_bool, y_predicted, target_names=languages_classes_mapping)}')
-    logger.debug('Printing statistics (training ans testing counters)...')
-    logger.info(f'Training samples: {train_count}')
-    logger.info(f'Testing samples: {test_count}')
-    
-    if USE_COMET_ML:
-        logger.debug('Displaying a confusion matrix, overall accuracy...')
-        cm = ConfusionMatrix()
-        cm.compute_matrix(y_test, y_predicted)
-        cm.labels = languages_classes_mapping
-        confusion_matrix = np.array(cm.to_json()['matrix'])
-
-        experiment.log_confusion_matrix(matrix=cm)
-
-        logger.debug('Accuracy to beat = (samples of most common class) / (all samples)')
-        acc_to_beat = np.amax(np.sum(confusion_matrix, axis=1) / np.sum(confusion_matrix))
-        confusion_matrix_acc = np.sum(confusion_matrix.diagonal()) / float(np.sum(confusion_matrix))
-        trained_model.evaluate(x_test.reshape(x_test.shape + (1,)), y_test)
-
-        logger.info(f'Accuracy to beat: {acc_to_beat}')
-        logger.info(f'Confusion matrix:\n {confusion_matrix}')
-        logger.info(f'Accuracy: {confusion_matrix_acc}')
-        logger.debug('Displaying the baseline, and whether it has been hit...')
-
-        baseline_difference = confusion_matrix_acc - acc_to_beat
-        if baseline_difference < 0:
-            logger.info('Baseline has not been hit.')
-        else:
-            logger.info(f'Baseline score: {baseline_difference}')
-    else:  # no Comet ML
-        trained_model.evaluate(x_test.reshape(x_test.shape + (1,)), y_test, verbose=1)
-        logger.info(f'Comet ML API_KEY and other variables are not found')
-        logger.info(f'Confusion Matrix accuracy calculations are not performed')
-
-    logger.debug('Showing languages to categorical mapping...')
-    logger.info(f'Relation classes to categories: {languages_mapping}')
-
-    y_predicted_prob = trained_model.predict(x_test.reshape(x_test.shape + (1,)), verbose=1)
-    logger.info(y_predicted[:10])
-    logger.info('PROB: ')
-    logger.info(y_predicted_prob[:10])
 
 
 if __name__ == '__main__':
