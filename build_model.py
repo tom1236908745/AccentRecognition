@@ -25,6 +25,10 @@ from sklearn.feature_selection import f_classif
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
+import time
+import numpy as np            # install : conda install numpy
+from scipy.io import wavfile  # install : conda install scipy
+from pygame import mixer      # pip install pygame
 
 import constants
 
@@ -48,8 +52,8 @@ if USE_COMET_ML:
     )
 
 """Parameters to adjust"""
-LANG_SET = 'en_sp_64mel_'  # what languages to use / fr_it_sp
-FEATURES = 'fbe'  # mfcc / f0 / cen / rol / chroma / rms / zcr / fbe [Feature types] mfcc_f0_cen_rol_chroma_rms_zcr
+LANG_SET = 'ch_pe_ja_en_64mel_'  # what languages to use / fr_it_sp
+FEATURES = 'mfcc'  # mfcc / f0 / cen / rol / chroma / rms / zcr / fbe [Feature types] mfcc_f0_cen_rol_chroma_rms_zcr
 MAX_PER_LANG = 80  # maximum number of audios of a language
 
 UNSILENCE = False
@@ -73,7 +77,7 @@ CHECK_DATASETS = True
 
 EPOCHS = 60  # [Number of training epochs]
 BATCH_SIZE = 64  # size of mini-batch used
-KERNEL_SIZE = (3, 3)  # (3, 3) (5, 5)
+KERNEL_SIZE = (7, 7)  # (3, 3) (5, 5)
 POOL_SIZE = (3, 3)  # (2, 2) (3, 3)
 DROPOUT = 0.1  # 0.5 for mfcc CNN
 BASELINE = 1.0
@@ -360,27 +364,19 @@ def preprocess_new_data(x, y):
     logger.debug('Transforming y to categorical...')
     le = LabelEncoder()
     y_categorical = to_categorical(le.fit_transform(y))
-    print("y_categorical")
-    print(y_categorical)
-    print("y")
-    print(y)
 
     classes = get_classes_map(y_categorical, y)
 
     logger.debug('Loading WAV files...')
     pool = multiprocessing.Pool(processes=multiprocessing.cpu_count())
     x = pool.map(extract_features, x)
+
     if any(feature is None for feature in x):
         logger.error("Some audio files are missing. See the log warnings above and fix the dataset before proceeding")
         return None
 
     logger.debug('Making segments of feature vectors...')
     x_segmented, y_segmented = split_into_matrices(x, y_categorical)
-    print("x_segmented ")
-    print(x_segmented)
-    print("y_segmented")
-    print(y_segmented)
-
 
     x_train, x_test, y_train, y_test = train_test_split(x_segmented, y_segmented, test_size=0.25, random_state=1234)
 
@@ -574,18 +570,26 @@ def train_model(x_train, y_train, x_validation, y_validation):
     time_history = TimeHistory()
 
     logger.debug('Adding image generator for data augmentation...')
-    data_generator = ImageDataGenerator(width_shift_range=0.2)
+    data_generator = ImageDataGenerator(width_shift_range=0.05)
 
     logger.debug('Training model...')
     history = model.fit(data_generator.flow(x_train, y_train, batch_size=BATCH_SIZE),
                         steps_per_epoch=x_train.shape[0] / BATCH_SIZE, epochs=EPOCHS,
                         callbacks=[es, time_history], validation_data=(x_validation, y_validation))
+    total_time = time_history.times 
     epoch_av_time = round(np.mean(time_history.times), 2)
 
     logger.debug('Model trained.')
+    logger.info(f'total epoch time: {sum(total_time)}')
     logger.info(f'Average epoch time: {epoch_av_time}')
     logger.debug('Plotting accuracy and loss...')
-
+     # パラメータ
+    # wavファイルをロードして再生
+    mixer.init()  # mixerを初期化
+    mixer.music.load("wavefile/a_1.wav")  # wavをロード
+    mixer.music.play(1)  # wavを1回再生
+    # 1秒（音がおわるまで）待つ
+    time.sleep(1)
     plot_history(history)
 
     return model
@@ -771,7 +775,7 @@ def main():
     logger.debug('Printing statistics (training ans testing counters)...')
     logger.info(f'Training samples: {train_count}')
     logger.info(f'Testing samples: {test_count}')
-    
+
     if USE_COMET_ML:
         logger.debug('Displaying a confusion matrix, overall accuracy...')
         cm = ConfusionMatrix()
@@ -812,3 +816,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+   
