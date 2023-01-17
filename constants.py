@@ -17,3 +17,6 @@ LANGUAGES = {
     'ko': 'korean',
     'en': 'english',
 }
+# Sino-Tibetan Languages
+# Indo-Iranian Languages
+# mix (ch_pe_ja_en)

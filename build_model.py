@@ -52,7 +52,7 @@ if USE_COMET_ML:
     )
 
 """Parameters to adjust"""
-LANG_SET = 'ch_pe_ja_en_64mel_'  # what languages to use / fr_it_sp
+LANG_SET = 'ja_ko_en_64mel_'  # what languages to use / fr_it_sp
 FEATURES = 'mfcc'  # mfcc / f0 / cen / rol / chroma / rms / zcr / fbe [Feature types] mfcc_f0_cen_rol_chroma_rms_zcr
 MAX_PER_LANG = 80  # maximum number of audios of a language
 
@@ -65,7 +65,7 @@ SAMPLE_RATE = 22050  # 22050 / 16000 [Hz]
 HOP_LENGTH = int(SAMPLE_RATE * 0.001 * OVERLAP_MS)  # [10 ms overlap]
 WIN_LENGTH = int(SAMPLE_RATE * 0.001 * WIN_LENGTH_MS)  # [25 ms window length]
 # N_FFT = int(SAMPLE_RATE * 0.001 * WIN_LENGTH)  # [25 ms window length]
-FRAME_SIZE = 75  # 30 / 50 / 70 / 100 / 150 / 200 / 300 / 500 [Size of feature segment]
+FRAME_SIZE = 70  # 30 / 50 / 70 / 100 / 150 / 200 / 300 / 500 [Size of feature segment]
 
 MEL_S_LOG = False
 
@@ -77,7 +77,7 @@ CHECK_DATASETS = True
 
 EPOCHS = 60  # [Number of training epochs]
 BATCH_SIZE = 64  # size of mini-batch used
-KERNEL_SIZE = (7, 7)  # (3, 3) (5, 5)
+KERNEL_SIZE = (5, 5)  # (3, 3) (5, 5)
 POOL_SIZE = (3, 3)  # (2, 2) (3, 3)
 DROPOUT = 0.1  # 0.5 for mfcc CNN
 BASELINE = 1.0
@@ -202,7 +202,7 @@ def derive_mfcc(audio_file, y):
                                     
     else: '''
 
-    mfcc = librosa.feature.mfcc(y=y, sr=SAMPLE_RATE, n_mfcc=13, hop_length=HOP_LENGTH, win_length=WIN_LENGTH)
+    mfcc = librosa.feature.mfcc(y=y, sr=SAMPLE_RATE, n_mfcc=N_MELS, hop_length=HOP_LENGTH, win_length=WIN_LENGTH,power=1.0)
     mfcc_normalized = normalize_feature_vectors(mfcc)
     return mfcc_normalized
 
@@ -370,7 +370,6 @@ def preprocess_new_data(x, y):
     logger.debug('Loading WAV files...')
     pool = multiprocessing.Pool(processes=multiprocessing.cpu_count())
     x = pool.map(extract_features, x)
-
     if any(feature is None for feature in x):
         logger.error("Some audio files are missing. See the log warnings above and fix the dataset before proceeding")
         return None
@@ -570,7 +569,7 @@ def train_model(x_train, y_train, x_validation, y_validation):
     time_history = TimeHistory()
 
     logger.debug('Adding image generator for data augmentation...')
-    data_generator = ImageDataGenerator(width_shift_range=0.05)
+    data_generator = ImageDataGenerator(width_shift_range=0.1)
 
     logger.debug('Training model...')
     history = model.fit(data_generator.flow(x_train, y_train, batch_size=BATCH_SIZE),
@@ -590,7 +589,7 @@ def train_model(x_train, y_train, x_validation, y_validation):
     mixer.music.play(1)  # wavを1回再生
     # 1秒（音がおわるまで）待つ
     time.sleep(1)
-    plot_history(history)
+    # plot_history(history)
 
     return model
 
@@ -738,6 +737,7 @@ def main():
         df = filter_df(df)
         audio_paths = df.path if not UNSILENCE else df.path_unsilenced
         corresponding_languages = df.language
+
         preprocess = preprocess_new_data(audio_paths, corresponding_languages)
         if not preprocess:
             return -1
@@ -816,4 +816,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-   

@@ -1,0 +1,8 @@
+PWD /Users/tomokinakayama/Desktop/AccentRecognition
+INPUT /usr/local/texlive/2022/texmf.cnf
+INPUT /usr/local/texlive/2022/texmf-dist/web2c/texmf.cnf
+INPUT /usr/local/texlive/2022/texmf.cnf
+INPUT /usr/local/texlive/2022/texmf-dist/web2c/texmf.cnf
+INPUT /usr/local/texlive/2022/texmf-var/web2c/eptex/platex.fmt
+INPUT /Users/tomokinakayama/Desktop/AccentRecognition/main.tex
+OUTPUT out/main.log
