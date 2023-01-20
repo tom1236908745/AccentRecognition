@@ -52,11 +52,11 @@ if USE_COMET_ML:
     )
 
 """Parameters to adjust"""
-LANG_SET = 'ja_ko_en_64mel_'  # what languages to use / fr_it_sp
+LANG_SET = 'ch_th_ne_64mel_'  # what languages to use / fr_it_sp
 FEATURES = 'mfcc'  # mfcc / f0 / cen / rol / chroma / rms / zcr / fbe [Feature types] mfcc_f0_cen_rol_chroma_rms_zcr
 MAX_PER_LANG = 80  # maximum number of audios of a language
 
-UNSILENCE = False
+UNSILENCE = True
 
 WIN_LENGTH_MS = 25  # ms / 25
 OVERLAP_MS = 10  # ms / 10
@@ -65,7 +65,7 @@ SAMPLE_RATE = 22050  # 22050 / 16000 [Hz]
 HOP_LENGTH = int(SAMPLE_RATE * 0.001 * OVERLAP_MS)  # [10 ms overlap]
 WIN_LENGTH = int(SAMPLE_RATE * 0.001 * WIN_LENGTH_MS)  # [25 ms window length]
 # N_FFT = int(SAMPLE_RATE * 0.001 * WIN_LENGTH)  # [25 ms window length]
-FRAME_SIZE = 70  # 30 / 50 / 70 / 100 / 150 / 200 / 300 / 500 [Size of feature segment]
+FRAME_SIZE = 75  # 30 / 50 / 70 / 100 / 150 / 200 / 300 / 500 [Size of feature segment]
 
 MEL_S_LOG = False
 
@@ -73,11 +73,11 @@ selection_method = 'UNIVARIATE'  # PCE / UNIVARIATE
 SCORE_FUNC = f_classif  # f_classif / mutual_info_classif [score function for univariate  feature selector]
 NUM_OF_FEATURES = 10  # [number of optimal features to work with]
 SELECT_FEATURES = False  # [whether to use feature selection method]
-CHECK_DATASETS = True
+CHECK_DATASETS = False
 
 EPOCHS = 60  # [Number of training epochs]
 BATCH_SIZE = 64  # size of mini-batch used
-KERNEL_SIZE = (5, 5)  # (3, 3) (5, 5)
+KERNEL_SIZE = (3, 3)  # (3, 3) (5, 5)
 POOL_SIZE = (3, 3)  # (2, 2) (3, 3)
 DROPOUT = 0.1  # 0.5 for mfcc CNN
 BASELINE = 1.0
@@ -569,7 +569,7 @@ def train_model(x_train, y_train, x_validation, y_validation):
     time_history = TimeHistory()
 
     logger.debug('Adding image generator for data augmentation...')
-    data_generator = ImageDataGenerator(width_shift_range=0.1)
+    data_generator = ImageDataGenerator(width_shift_range=0.05)
 
     logger.debug('Training model...')
     history = model.fit(data_generator.flow(x_train, y_train, batch_size=BATCH_SIZE),
