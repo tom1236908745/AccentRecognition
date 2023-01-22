@@ -23,11 +23,11 @@ A foreign language accent can be thought of as a combined effect of contact betw
 
 As the best known results so far have been achieved using mel-frequency cepstral coefficients (MFCC) that can be further enforced by time-frequency and energy features. The authors of \cite{Veranika：lang} reported the promising result of such a combination, while designing a CNN classifier trained and tested on English with Germanic, Italic and Slavic accents.
 In this work, we make an effort to extend the experiments with up to eight Asian languages. Based on some reports about the difference in classification accuracy because of using different version of TensorFlow library, we decided to make the experiments agains two version, namely: tensorflow-macos 2.8.0 (since the version 2.8 was used in \cite{Veranika:lang}) and 2.11.0 (the latter being the latest version as of January 2023).\par
-The remaining text organized as follows. Section~\ref{sec:related-work} describes the state-of-the-art approaches used in accent recognition and classification. Section~\ref{sec:related-work} presents the methods used in this study and describes the process workflow including data collection, CNN construction, its training and testing against the selected input features. Section 4 presents experimental results on hyperparameter selection, regularization, and different sets of features of the speech signal used by the CNN classifier. Section 5 discusses the experimental results.
+The remaining text organized as follows. Section~\ref{sec:related-work} describes the state-of-the-art approaches used in accent recognition and classification. Section~\ref{sec:related-work} presents the methods used in this study and describes the process workflow including data collection, CNN construction, its training and testing against the selected input features. Section ~\ref{sec:experiments-and-results} presents experimental results on hyperparameter selection, regularization, and different sets of features of the speech signal used by the CNN classifier. Section ~\ref{sec:conclusion} discusses the experimental results.
 
 \section{Related Work}
 \label{sec:related-work}
-In previous studies, accent detection algorithms have been built using standard classification models and machine learning architectures including con- volutional neural networks (CNN) \cite{Singh:fea, Ensslin:dee, Ahamad:acc, Duong:dev}, feedforward neural networks (FFNN) \cite{Tverdokhleb:imp}, hidden Markov model (HMM) \cite{Bird:acc}, k-nearest neighbor (KNN) model \cite{Krishna:asy}, Gaussian mix- ture model (GMM) \cite{Krishna:asy, Lazaridis:ava}, long short-term memory (LSTM) and bidirectional LSTM (bLSTM) \cite{Jiao:acc, Weninger:dee}, random forest, and support vector machine (SVM) \cite{Bird:acc, Krishna:asy, Lazaridis:ava, Is:tur, Kethireddy:mel}. \par 
+In previous studies, accent detection algorithms have been built using standard classification models and machine learning architectures including con- volutional neural networks (CNN) \cite{Singh:fea, Ensslin:dee, Ahamad:acc, Duong:dev},k-nearest neighbor (KNN) model \cite{Krishna:asy} \par 
 Using MFCC was reported as one of the most successful approaces taking into account the physical and acoustic characteristics of the speech signal \cite{Singh:fea, Tverdokhleb:imp}. The authors in \cite{Singh:fea} suggested that further experiments are needed to identify promising cases for combining MFCC with other types of available features. Following this suggestion, in  \cite{Veranika:lang}, an exhaustive experimental study was conducted to investigate the issue. The experiments was resulted in concluding that mel-spectrograms on a linear scale demonstrated the high levels of accuracy with good efficiency.
 
 \section{Methodology and Workflow}
@@ -43,15 +43,15 @@ For the experiment, speech samples were collected from the Speech Accent Archive
 Though the recording from Speech Accent Archive are not produced in the ideal acoustic conditions, this collection of speech data becomes popular, since it can be considered as a model closer to real-life situations compared to the specially constructed speech datasets. In the same time, the data availabe from Speech Accent Archive fit the important requirements for ASR-targeted dataset, including the support of speaker diversity, uniformity of material of the same content and context, variety of individual phonemes, phonemic balance, and others \cite{Veranika:lang}.
 
 \subsection{Data Classes (L1 Languages)}
-In this wore, we addressed a subset of 9 language groups. These groups were labeled according to L1 as Sino-Tibetan Languages(Chinese (CH), Thai (TH), Nepali (NE)), Indo-Iranian Languages (Persian(PE), Bengali (BE),Hindi (HI)) and others(Japanese(JA), Korean(KO) and English(EN)). The distribution of available recordings during the experimental period according to L1 classes was as shown in Table 1. Since the number of recordings with these accents are smaller compared to other language classes, it is important to  observe the possible trends within the larger groups.
-%table 1
-\begin{table}[h]
+In this wore, we addressed a subset of 9 language groups. These groups were labeled according to L1 as Sino-Tibetan Languages(Chinese (CH), Thai (TH), Nepali (NE)), Indo-Iranian Languages (Persian(PE), Bengali (BE),Hindi (HI)) and others(Japanese(JA), Korean(KO) and English(EN)). The distribution of available recordings during the experimental period according to L1 classes was as shown in Table ~\ref{languages-chart}. Since the number of recordings with these accents are smaller compared to other language classes, it is important to  observe the possible trends within the larger groups.
+%figure 1
+\begin{figure}[h]
     \centering
     \includegraphics[scale=0.35]{images/languages_chart.png}
     \caption{Distribution of audio recordings by classes (during experimental period).}
-    
-\end{table}
-For classes with a large number of recordings, using all available cases usually does not improve recognition accuracy nd may be computationally expensive. Therefore, for larger groups, the number of samples used was limited to 80 recordings selected randomly from the available collection.\par
+    \label{languages-chart}
+\end{figure}
+For classes with a large number of recordings, using all available cases usually does not improve recognition accuracy and computationally expensive. Therefore, for larger groups, the number of samples used was limited to 80 recordings selected randomly from the available collection.\par
 For crowd-sourced collections, environment and recording equipment are not constant among speakers, which might resulting in large differences in sampling noise and recording volume \cite{Ahamad:acc}.
 Following the recommendations from \cite{Veranika:lang, Ahamad:acc}, in order to reduce such possible differences, we used between speech recordings as linear distortion, before training the model, it is necessary to normalize, for example, using $z$-normalization of the obtained data within each speech recording as follows:
 \\
@@ -63,7 +63,7 @@ where $\mu$---mean value, $\sigma$---standard deviation.
 
 \subsection{Fragments of Silence}
 
-Similarly to the experiments arranged in \cite{Veranika:lang, Boula:the}, we investigated whether the pauses in speech need to be retained or removed from the input for further CNN model training and testing, now addressing the selection of Asian accent classes. Table 2 and Table 3 list  the results of this preliminary experimental stage. 
+Similarly to the experiments arranged in \cite{Veranika:lang, Boula:the}, we investigated whether the pauses in speech need to be retained or removed from the input for further CNN model training and testing, now addressing the selection of Asian accent classes. Table ~\ref{silence} and Table ~\ref{silence-2} list  the results of this preliminary experimental stage. 
 
 Since the accuracy is slightly higher for the test cases retaining the fragments of silence, for the subsequent main experiments, we used the audio files with all the pauses preserved.
 
@@ -71,11 +71,13 @@ Since the accuracy is slightly higher for the test cases retaining the fragments
     \centering
     \includegraphics[scale=0.43]{images/silence.png}
     \caption{Comparing classifiers with preserved or removed fragments of silence. (2.11.0)}
+    \label{silence}
 \end{table}
 \begin{table}[h]
     \centering
     \includegraphics[scale=0.41]{images/silence_n.png}
     \caption{Comparing classifiers with preserved or removed fragments of silence. (2.8.0)}
+    \label{silence-2}
 \end{table}
 
 \subsection{Feature Selection}
@@ -145,80 +147,93 @@ softmax(z_i)=\frac{e^{z_i}}{\sum\nolimits_{j=1}^{C} e^{z_j}},
 \\
 where $z_i$ is an element of the input vector of real numbers $z$, $C$ is the number of classes.
 
-\begin{table}[h]
+\begin{figure}[h]
     \centering
     \includegraphics[keepaspectratio, scale=0.22]{images/cnn_model.png}
     \caption{Classification process model for $N$ recognition classes.}
-\end{table}
+    \label{cnn-model}
+\end{figure}
 
+The figure \label{cnn-model} shows the cnn model's outline drawing.
 We used standard Python libraries as tools for modeling, training, implementing, and visualizing CNNs. In particular, the accent classifier was implemented and trained using the Keras library, which provides a high-level interface to the Tensorflow computing platform. Classification quality metrics were computed using the Scikit-learn package. The Matplotlib library was used to visualize the experimental results.
 
 \section{Experiments and Results}
+\label{sec:experiments-and-results}
 The first part of the experiments examined the architecture of the CNN across hyperparameter selection, regularization, and data augmentation. The second part focuses the experiments with various acoustic features fed into the input layer of the CNN model. All the experiments were performed on several classes of Asian accents.
 \subsection{CNN Model Tuning and Data }
 The kernel of a CNN convolution layer is the width and height of the filter mask. The most common filter sizes for convolution layers in machine learning are (3, 3) and (5, 5).\par
-Several filter configurations were tried for classification of {EN, CH, PE, JA} (Mix Group) accents using linear amplitude mel spectrograms as input. The length of the input feature matrix used to represent the input data was 100; training was stopped when the change in recognition accuracy was less than 1\% within 10 epochs. Tables 5 and 6 show that Kernel Size (5, 5) and Pool Size (3, 3) also showed the best accuracy for both versions. Also, 2.8.0 had a wider range of accuracy and a much higher result of 0.8766.
+Several filter configurations were tried for classification of {EN, CH, PE, JA} (Mix Group) accents using linear amplitude mel spectrograms as input. The length of the input feature matrix used to represent the input data was 100; training was stopped when the change in recognition accuracy was less than 1\% within 10 epochs. Tables ~\ref{filter-size} and ~\ref{filter-size-2} show that Kernel Size (5, 5) and Pool Size (3, 3) also showed the best accuracy for both versions. Also, 2.8.0 had a wider range of accuracy and a much higher result of 0.8766.
 
 \begin{table}[h]
     \centering
     \includegraphics[keepaspectratio, scale=0.34]{images/filter_size.png}
     \caption{Results of using different filter sizes with mel-spectrograms. (2.11.0)}
+    \label{filter-size}
 \end{table}
 \begin{table}[h]
     \centering
     \includegraphics[keepaspectratio, scale=0.37]{images/filter_size_n.png}
     \caption{Results of using different filter sizes with mel-spectrograms. (2.8.0)}
+    \label{filter-size-2}
 \end{table}
 
-In the data expansion phase, the maximum horizontal shift of 5\% and 10\% was tested on a subset of data containing speech recordings of foreign accent groups {PE, CH, JA} and speech files without foreign accents (EN). The MFCC and its alternating combination of fundamental frequency and spectral centroid were used as input data. The results are shown in Tables 7 and 8.
+In the data expansion phase, the maximum horizontal shift of 5\% and 10\% was tested on a subset of data containing speech recordings of foreign accent groups {PE, CH, JA} and speech files without foreign accents (EN). The MFCC and its alternating combination of fundamental frequency and spectral centroid were used as input data. The results are shown in Tables \ref{0.05-or-0.1} and \ref{0.05-or-0.1-2}.
 \begin{table}[h]
     \centering
     \includegraphics[keepaspectratio, scale=0.38]{images/0.05_or_0.1.png}
     \caption{Classification results at different shift percentages for a set of languages of different language groups. (2.11.0)}
+    \label{0.05-or-0.1}
 \end{table}
 \begin{table}[h]
     \centering
     \includegraphics[keepaspectratio, scale=0.41]{images/0.05_or_0.1_n.png}
     \caption{Classification results at different shift percentages for a set of languages of different language groups. (2.8.0)}
+    \label{0.05-or-0.1-2}
 \end{table}
 
-Based on these results, we hypothesized that a 5\% horizontal shift for version 2.11.0 and a 10\% or even higher value for version 2.8.0 would be better. Based on this hypothesis, we conducted experiments on the accents {CH, TH, NE} (Sino-Tibetan Languages). From the results in Tables 9 and 10, we conclude that the optimal accuracy is reached when the horizontal shift is 5\% for both accents. This means that the hypothesis of version 2.8.0 has been rejected, but we can confirm the results of considerably higher accuracy and lower loss function at 20\% and 25\%.
+Based on these results, we hypothesized that a 5\% horizontal shift for version 2.11.0 and a 10\% or even higher value for version 2.8.0 would be better. Based on this hypothesis, we conducted experiments on the accents {CH, TH, NE} (Sino-Tibetan Languages). From the results in Tables ~\ref{horizontal-shift} and ~\ref{horizontal-shift-2}, we conclude that the optimal accuracy is reached when the horizontal shift is 5\% for both accents. This means that the hypothesis of version 2.8.0 has been rejected, but we can confirm the results of considerably higher accuracy and lower loss function at 20\% and 25\%.
 
 \begin{table}[h]
     \centering
     \includegraphics[keepaspectratio, scale=0.5]{images/horizontal_shift.png}
     \caption{Classification results at different shift percentages for a set of Romance languages. (2.11.0)}
+    \label{horizontal-shift}
 \end{table}
 \begin{table}[h]
     \centering
     \includegraphics[keepaspectratio, scale=0.5]{images/horizontal_shift_n.png}
     \caption{Classification results at different shift percentages for a set of Romance languages. (2.8.0)}
+    \label{horizontal-shift-2}
 \end{table}
 
 \subsection{Input Acoustic Feature Sets}
 \subsubsection{Dimension of Input}
 Splitting the input features into large or small chunks can introduce bias. Large chunks can discover longer speech patterns (which are more likely to be accent-dependent), but the training set will be smaller, and training on high-dimensional data is naturally computationally expensive (and thus slower). In addition, selecting shorter fragments allows more input data to be used, but the information about the accents obtained from the feature vector fragments may be degraded.\par
-Therefore, in order to find the optimal size of the input feature vectors, experiments were conducted by grouping the feature vectors into pieces ranging in size from 30 to 500 pieces per block. Tables 11,12,13 and 14 show the results.
+Therefore, in order to find the optimal size of the input feature vectors, experiments were conducted by grouping the feature vectors into pieces ranging in size from 30 to 500 pieces per block. Tables ~\ref{feature-matrices1},~\ref{feature-matrices1-2},~\ref{feature-matrices2} and ~\ref{feature_matrices2-2} show the results.
 \begin{table}[h]
     \centering
     \includegraphics[keepaspectratio, scale=0.43]{images/feature_matrices1.png}
     \caption{Classification results with different sizes of input matrices for Sino-Tibetan and Indo-Iranian languages (MFCC). (2.11.0)}
+    \label{feature-matrices1}
 \end{table}
 \begin{table}[h]
     \centering
     \includegraphics[keepaspectratio, scale=0.43]{images/feature_matrices1_n.png}
     \caption{Classification results with different sizes of input matrices for Sino-Tibetan and Indo-Iranian languages (MFCC). (2.8.0)}
+    \label{feature-matrices1-2}
 \end{table}
 
 \begin{table}[h]
     \centering
     \includegraphics[keepaspectratio, scale=0.4]{images/feature_matrices2.png}
     \caption{Classification results for different sizes of input matrices for mixed languages (MFCC). (2.11.0)}
+    \label{feature-matrices2}
 \end{table}
 \begin{table}[h]
     \centering
     \includegraphics[keepaspectratio, scale=0.4]{images/feature_matrices2_n.png}
     \caption{Classification results for different sizes of input matrices for mixed languages (MFCC). (2.8.0)}
+    \label{feature-matrices2-2}
 \end{table}
 \clearpage
 The results show that a feature matrix size between 30 and 150 is appropriate for both versions. Furthermore, if we pay attention to the difference between the two versions, we can see that the latest version is considerably less accurate at 200, but in the case of version 2.8.0, the values do not decrease significantly even at 200, so we can consider raising the upper limit of the range to 200.
@@ -227,13 +242,15 @@ The results show that a feature matrix size between 30 and 150 is appropriate fo
     \centering
     \includegraphics[keepaspectratio, scale=0.36]{images/mel_bands.png}
     \caption{Classification results for different sizes of input matrices for a set of Sino-Tibetan languages (mel-spectrograms). (2.11.0)}
+    \label{mel-bands}
 \end{table}
 \begin{table}[h]
     \centering
     \includegraphics[keepaspectratio, scale=0.34]{images/mel_bands_n.png}
     \caption{Classification results for different sizes of input matrices for a set of Sino-Tibetan languages (mel-spectrograms). (2.8.0)}
+    \label{mel-bands-2}
 \end{table}
-Table 15 and 16 show the results of an experiment conducted on Sino-Tibetan accents, using the MFCC as input and varying the number of mel-bands used to represent the spectrogram.\par
+Table ~\ref{mel-bands} and ~\ref{mel-bands-2} show the results of an experiment conducted on Sino-Tibetan accents, using the MFCC as input and varying the number of mel-bands used to represent the spectrogram.\par
 A dropout of 0.1 was used during the experiment. The size of the filter in the convolution layer was (5, 5) and the size of the pooling layer was (3, 3). training was stopped when the recognition accuracy did not change by more than 1\% in 10 epochs.
 As shown in Table 15 and 16, a mel-spectrogram with 64 frequency bands was found to be the most effective and was chosen as the input characteristic for recognition. On the other hand, using a 32-band mel-spectrogram requires less computation but results in a larger recognition error.\par
 From the experimental results in Table 15 and 16, we can conclude that the optimal size of the input feature matrix is 50 vectors when the amplitude mel-spectrogram is used linearly.\par
@@ -242,47 +259,54 @@ The difference between the two versions was shown to be that the latest version 
 
 \subsubsection{Combining MFCC with additional features}
 Next, we consider the case where MFCC is extended with some additional features, as proposed in \cite{Veranika:lang} and \cite{Singh:fea}. MFCC speech features are widely used for accent detection because they provide a compact yet informative speech signal with high classification accuracy \cite{Jiang:tow,Jiang:tow}. proposed that the accuracy can be further improved by adding additional information to the MFCC. However, arbitrarily adding a large number of input features is disadvantageous because the excessive information slows down the classifier's learning process and increases model overfitting due to noise. Therefore, it is important to select a limited number of appropriate representative features. Therefore, this study strives to find essential features for MFCC expansion that positively affect classification accuracy while maintaining the basic filter size in the hidden layer of the classifier. It is also worth noting that our feature selection is consistent with the Fisher criterion \cite{Longford:afa, Wu:fea, Sun:fea}, although we did not explicitly use it.\par
-Learning was stopped when learning accuracy reached 90\% or 120 epochs for all accent sets, except for the cases {CH, TH, NE}(Sino-Tibetan Languages) where the learning process was terminated when 350 epochs were reached. The results obtained are shown in Tables 17,18,19 and 20.\par
+Learning was stopped when learning accuracy reached 90\% or 120 epochs for all accent sets, except for the cases {CH, TH, NE}(Sino-Tibetan Languages) where the learning process was terminated when 350 epochs were reached. The results obtained are shown in Tables ~\ref{features1},~\ref{features1-2},~\ref{features2} and ~\ref{features2-2}.\par
 In the Sino-Tibetan language accent set {CH, TH, NE} in version 2.8.0, all results for MFCC combined with features are shown to be better than MFCC alone. Other than that, the addition of features to MFCC as features that tended to contribute to MFCC showed better accuracy overall. This is especially true for the chromogram and also for the combination of all features.\par
 The difference between the two versions is that the latest version has higher overall accuracy. However, there were no other notable differences between the two versions.
 \begin{table}[h]
     \centering
     \includegraphics[keepaspectratio, scale=0.35]{images/features1.png}
     \caption{Classification results using different types of input features for Sino-Tibetan and Indo-Iranian accents. (2.11.0)}
+    \label{features1}
 \end{table}
 \begin{table}[h]
     \centering
     \includegraphics[keepaspectratio, scale=0.35]{images/features1_n.png}
     \caption{Classification results using different types of input features for Sino-Tibetan and Indo-Iranian accents. (2.8.0)}
+    \label{features1-2}
 \end{table}
 \begin{table}[h]
     \centering
     \includegraphics[keepaspectratio, scale=0.35]{images/features2.png}
     \caption{ Classification results when using different types of input features for accents of mixed language groups. (2.11.0)}
+    \label{features2}
 \end{table}
 \begin{table}[h]
     \centering
     \includegraphics[keepaspectratio, scale=0.35]{images/features2_n.png}
     \caption{ Classification results when using different types of input features for accents of mixed language groups. (2.8.0)}
+    \label{features2-2}
 \end{table}
 \clearpage
 \subsubsection{Mel-Spectograms}
 Linear-scale mel-amplitude spectrograms extracted from the speech signal can also be tried as input to the classifier \cite{Veranika:lang}. At the same time, according to the pre-set optimal parameters of the classifier, a filter with convolution layer size of (5, 5) and pooling layer size of (3, 3) is used, and the input feature matrix size is 30 elements. The number of epochs was limited to 60, and training was stopped when the change in recognition accuracy within 10 epochs was less than 1\%.\par
-Tables 21 and 22 mention Mel-Spectograms on a linear scale showed high efficiency in recognizing foreign accents in English speech. \par
+Tables ~\ref{mel-spectograms} and ~\ref{mel-spectograms-2} mention Mel-Spectograms on a linear scale showed high efficiency in recognizing foreign accents in English speech. \par
 Mentioning about the version thing, as you can see at a glance, the latest version has a much higher accuracy. The average value was above 0.75 and never lower than 0.9. In comparison, the 2.8.0 version had an average value of 0.9122, a difference of about 0.05, and two values lower than 0.9.
 \begin{table}[h]
     \centering
     \includegraphics[keepaspectratio, scale=0.4]{images/mel_spectograms.png}
     \caption{Accuracy and loss for trained Accent Classification Models. (2.11.0)}
+    \label{mel-spectograms}
 \end{table}
 \begin{table}[h]
     \centering
     \includegraphics[keepaspectratio, scale=0.43]{images/mel_spectograms_n.png}
     \caption{Accuracy and loss for trained Accent Classification Models. (2.8.0)}
+    \label{mel-spectograms-2}
 \end{table}
 \section{Conclusion}
+\label{sec:conclusion}
 The experimental results indicate that the hypothesis proposed in \cite{Singh:fea} that combining multiple features improves the system over MFCC alone is true for Asian languages. In addition, of the features used, a fairly high accuracy of 0.9 or better was obtained for both versions when the mel-spectogram was used. The system was found to be particularly effective not only in the area of speech processing, where its effectiveness has already been confirmed, but also in the recognition of accents in Asian languages.
-In this experiment, we used two versions and compared the results of each, and found that there were significant differences between them. The latest version, 2.11.0, was shown to perform better than the older version, 2.8.0, overall in terms of accuracy, loss function results, and shorter training time. In addition, each version has some differences in the results, as confirmed in Table 8 and Table 9, but the general trend was found to be the same.
+In this experiment, we used two versions and compared the results of each, and found that there were significant differences between them. The latest version, 2.11.0, was shown to perform better than the older version, 2.8.0, overall in terms of accuracy, loss function results, and shorter training time. In addition, each version has some differences in the results, as confirmed in Table ~\ref{0.05-or-0.1} and Table ~\ref{0.05-or-0.1-2}, but the general trend was found to be the same.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
