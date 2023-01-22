@@ -4,15 +4,15 @@
   (generated)
   "out/main.pdf"
   (rewritten before read)
-["latex"] 1674358366 "/Users/tomokinakayama/Desktop/AccentRecognition/main.tex" "out/main.dvi" "main" 1674358366 2
-  "/Users/tomokinakayama/Desktop/AccentRecognition/main.tex" 1674358366 34400 ac84ab50781808f4fdaa312fb7606044 ""
+["latex"] 1674361514 "/Users/tomokinakayama/Desktop/AccentRecognition/main.tex" "out/main.dvi" "main" 1674361514 2
+  "/Users/tomokinakayama/Desktop/AccentRecognition/main.tex" 1674361513 34644 b072defe5231904b5a5bb6222b5f1107 ""
   "/usr/local/texlive/2022/texmf-dist/web2c/texmf.cnf" 1646502317 40171 cdab547de63d26590bebb3baff566530 ""
   "/usr/local/texlive/2022/texmf-var/web2c/eptex/platex.fmt" 1671429869 7909574 18910b4af51fd2bea86eb2c4fe061351 ""
   "/usr/local/texlive/2022/texmf.cnf" 1647878952 577 209b46be99c9075fd74d4c0369380e8c ""
   "U-AizuGT.cls" 0 -1 0 ""
-  "main.tex" 1674358366 34400 ac84ab50781808f4fdaa312fb7606044 ""
+  "main.tex" 1674361513 34644 b072defe5231904b5a5bb6222b5f1107 ""
   "out/U-AizuGT.cls" 0 -1 0 ""
-  "out/main.aux" 1674358366 32 3985256e7290058c681f74d7a3565a19 ""
+  "out/main.aux" 1674361514 32 3985256e7290058c681f74d7a3565a19 ""
   (generated)
   "out/main.dvi"
   "out/main.log"
